@@ -1,7 +1,10 @@
 # Winvue
 
 Work in progress! Very early stage.
+
 Window manager for [Vue3 with Composition API](https://vuejs.org/) written in Typescript.
+
+[winvue-demo](https://github.com/user-attachments/assets/9a83ddd6-93c7-4db6-9eb0-bd772b6de7bc)
 
 ## Running
 - Start the UI with :
