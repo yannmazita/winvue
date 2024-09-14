@@ -12,6 +12,7 @@ export function useDraggable(id: string) {
 
         if (!parent || !currentWindow?.value?.dragging) return;
         if (currentWindow.value.isMaximized) return;
+        if (currentWindow.value.isMinimized) return;
 
         const parentRect = parent.getBoundingClientRect();
         const dx = event.clientX - currentWindow.value.lastMouseX;
