@@ -121,7 +121,7 @@ describe('useResizable composable with complex scenarios', () => {
         store.createWindow(mockWindow);
     });
 
-    it('resizes southeast (se) correctly', () => {
+    it('resizes southeast (se) within max window size', () => {
         const { toggleResize, handleResize } = useResizable(mockWindow.id);
         const element = mockElement(1200, 800);
         const downEvent = createMouseEvent('mousedown', 100, 100);
@@ -134,7 +134,7 @@ describe('useResizable composable with complex scenarios', () => {
         const window = store.getWindow(mockWindow.id);
         expect(window?.xPos).toBe(100);     // xPos stays the same
         expect(window?.yPos).toBe(100);     // yPos stays the same
-        expect(window?.width).toBe(550);   // Width increases
+        expect(window?.width).toBe(550);    // Width increases
         expect(window?.height).toBe(450);   // Height increases
     });
 
@@ -149,9 +149,10 @@ describe('useResizable composable with complex scenarios', () => {
         handleResize(moveEvent);
 
         const window = store.getWindow(mockWindow.id);
-        expect(window?.xPos).toBe(50); // xPos adjusts left
-        expect(window?.width).toBe(550); // Width increases
-        expect(window?.height).toBe(450); // Height increases
+        expect(window?.xPos).toBe(50);      // xPos adjusts left
+        expect(window?.yPos).toBe(100);     // yPos stays the same
+        expect(window?.width).toBe(550);    // Width increases
+        expect(window?.height).toBe(450);   // Height increases
     });
 
     it('resizes northeast (ne) correctly', () => {
@@ -165,10 +166,10 @@ describe('useResizable composable with complex scenarios', () => {
         handleResize(moveEvent);
 
         const window = store.getWindow(mockWindow.id);
-        expect(window?.xPos).toBe(100); // xPos stays the same
-        expect(window?.yPos).toBe(50); // yPos adjusts upwards
-        expect(window?.width).toBe(550); // Width increases
-        expect(window?.height).toBe(450); // Height decreases
+        expect(window?.xPos).toBe(100);     // xPos stays the same
+        expect(window?.yPos).toBe(50);      // yPos adjusts upwards
+        expect(window?.width).toBe(550);    // Width increases
+        expect(window?.height).toBe(450);   // Height decreases
     });
 
     it('resizes northwest (nw) correctly', () => {
@@ -182,10 +183,10 @@ describe('useResizable composable with complex scenarios', () => {
         handleResize(moveEvent);
 
         const window = store.getWindow(mockWindow.id);
-        expect(window?.xPos).toBe(50); // xPos adjusts left
-        expect(window?.yPos).toBe(50); // yPos adjusts upwards
-        expect(window?.width).toBe(550); // Width increases
-        expect(window?.height).toBe(450); // Height increases
+        expect(window?.xPos).toBe(50);      // xPos adjusts left
+        expect(window?.yPos).toBe(50);      // yPos adjusts upwards
+        expect(window?.width).toBe(550);    // Width increases
+        expect(window?.height).toBe(450);   // Height increases
     });
 
     it('resizes north (n) correctly', () => {
@@ -199,8 +200,10 @@ describe('useResizable composable with complex scenarios', () => {
         handleResize(moveEvent);
 
         const window = store.getWindow(mockWindow.id);
-        expect(window?.yPos).toBe(50); // yPos adjusts upwards
-        expect(window?.height).toBe(450); // Height increases
+        expect(window?.xPos).toBe(100);     // xPos stays the same
+        expect(window?.yPos).toBe(50);      // yPos adjusts upwards
+        expect(window?.width).toBe(500);    // Width stays the same
+        expect(window?.height).toBe(450);   // Height increases
     });
 
     it('resizes south (s) correctly', () => {
@@ -214,7 +217,10 @@ describe('useResizable composable with complex scenarios', () => {
         handleResize(moveEvent);
 
         const window = store.getWindow(mockWindow.id);
-        expect(window?.height).toBe(450); // Height increases
+        expect(window?.xPos).toBe(100);     // xPos stays the same
+        expect(window?.yPos).toBe(100);     // yPos stays the same
+        expect(window?.width).toBe(500);    // Width stays the same
+        expect(window?.height).toBe(450);   // Height increases
     });
 
     it('resizes east (e) correctly', () => {
@@ -228,7 +234,10 @@ describe('useResizable composable with complex scenarios', () => {
         handleResize(moveEvent);
 
         const window = store.getWindow(mockWindow.id);
-        expect(window?.width).toBe(550); // Width increases
+        expect(window?.xPos).toBe(100);     // xPos stays the same
+        expect(window?.yPos).toBe(100);     // yPos stays the same
+        expect(window?.width).toBe(550);    // Width increases
+        expect(window?.height).toBe(400);   // Height stays the same
     });
 
     it('resizes west (w) correctly', () => {
@@ -242,8 +251,10 @@ describe('useResizable composable with complex scenarios', () => {
         handleResize(moveEvent);
 
         const window = store.getWindow(mockWindow.id);
-        expect(window?.xPos).toBe(50); // xPos adjusts left
-        expect(window?.width).toBe(550); // Width increases
+        expect(window?.xPos).toBe(50);      // xPos adjusts left
+        expect(window?.yPos).toBe(100);     // yPos stays the same
+        expect(window?.width).toBe(550);    // Width increases
+        expect(window?.height).toBe(400);   // Height stays the same
     });
 
     it('stops resizing correctly when mouseup is triggered', () => {
