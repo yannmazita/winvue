@@ -8,9 +8,6 @@ export function useResizable(id: string) {
     let rootElement: HTMLDivElement | null = null;
 
     function adjustSize(dx: number, dy: number, expandRight: boolean, expandDown: boolean) {
-        // Currently there is a bug when resizing using the north handle and encountering the parent's top boundary
-        // Trying to resize past the boundary will mean the component grows from the bottom.
-
         const parent = rootElement?.parentElement;
         const parentRect = parent?.getBoundingClientRect();
 
