@@ -125,22 +125,24 @@ describe('useResizable composable with complex scenarios', () => {
         const { toggleResize, handleResize } = useResizable(mockWindow.id);
         const element = mockElement(1200, 800);
         const downEvent = createMouseEvent('mousedown', 100, 100);
-        const moveEvent = createMouseEvent('mousemove', 600, 600);
+        const moveEvent = createMouseEvent('mousemove', 150, 150);
 
         toggleResize('se', downEvent, element as unknown as HTMLDivElement);
 
         handleResize(moveEvent);
 
         const window = store.getWindow(mockWindow.id);
-        expect(window?.width).toBe(1000);
-        expect(window?.height).toBe(900);
+        expect(window?.xPos).toBe(100);     // xPos stays the same
+        expect(window?.yPos).toBe(100);     // yPos stays the same
+        expect(window?.width).toBe(550);   // Width increases
+        expect(window?.height).toBe(450);   // Height increases
     });
 
     it('resizes southwest (sw) correctly', () => {
         const { toggleResize, handleResize } = useResizable(mockWindow.id);
         const element = mockElement(1200, 800);
         const downEvent = createMouseEvent('mousedown', 100, 100);
-        const moveEvent = createMouseEvent('mousemove', 50, 600);
+        const moveEvent = createMouseEvent('mousemove', 50, 150);
 
         toggleResize('sw', downEvent, element as unknown as HTMLDivElement);
 
@@ -149,23 +151,24 @@ describe('useResizable composable with complex scenarios', () => {
         const window = store.getWindow(mockWindow.id);
         expect(window?.xPos).toBe(50); // xPos adjusts left
         expect(window?.width).toBe(550); // Width increases
-        expect(window?.height).toBe(900); // Height increases
+        expect(window?.height).toBe(450); // Height increases
     });
 
     it('resizes northeast (ne) correctly', () => {
         const { toggleResize, handleResize } = useResizable(mockWindow.id);
         const element = mockElement(1200, 800);
         const downEvent = createMouseEvent('mousedown', 100, 100);
-        const moveEvent = createMouseEvent('mousemove', 600, 50);
+        const moveEvent = createMouseEvent('mousemove', 150, 50);
 
         toggleResize('ne', downEvent, element as unknown as HTMLDivElement);
 
         handleResize(moveEvent);
 
         const window = store.getWindow(mockWindow.id);
+        expect(window?.xPos).toBe(100); // xPos stays the same
         expect(window?.yPos).toBe(50); // yPos adjusts upwards
-        expect(window?.width).toBe(1000); // Width increases
-        expect(window?.height).toBe(350); // Height decreases
+        expect(window?.width).toBe(550); // Width increases
+        expect(window?.height).toBe(450); // Height decreases
     });
 
     it('resizes northwest (nw) correctly', () => {
@@ -182,7 +185,7 @@ describe('useResizable composable with complex scenarios', () => {
         expect(window?.xPos).toBe(50); // xPos adjusts left
         expect(window?.yPos).toBe(50); // yPos adjusts upwards
         expect(window?.width).toBe(550); // Width increases
-        expect(window?.height).toBe(350); // Height decreases
+        expect(window?.height).toBe(450); // Height increases
     });
 
     it('resizes north (n) correctly', () => {
