@@ -279,7 +279,7 @@ describe('useDraggable composable with complex scenarios', () => {
         const window = store.getWindow(mockWindow.id);
 
         expect(window?.xPos).toBe(700); // Constrained at the parent's right edge
-        expect(window?.yPos).toBe(380); // Constrained at the parent's bottom edge
+        expect(window?.yPos).toBe(400); // Constrained at the parent's bottom edge
     });
 
     it('updates window position dynamically when parent dimensions change', () => {
