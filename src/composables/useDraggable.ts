@@ -1,11 +1,18 @@
 import { useWindowsStore } from "@/stores/useWindowsStore";
-import { computed, ref } from "vue";
+import { computed, ref, watch } from "vue";
 
 export function useDraggable(id: string) {
     const store = useWindowsStore();
     const currentWindow = computed(() => store.windows.get(id));
     const rootElement = ref<HTMLDivElement | null>(null);
     const heightOffset = ref(0);
+
+    const updateRootElement = (element: HTMLDivElement | null) => {
+        rootElement.value = element;
+        if (element) {
+            heightOffset.value = (element.parentElement?.offsetTop ?? 0);
+        }
+    };
 
     function handleDrag(event: MouseEvent) {
         const parent = rootElement.value?.parentElement;
@@ -19,16 +26,16 @@ export function useDraggable(id: string) {
         const dy = event.clientY - currentWindow.value.lastMouseY;
 
         // Calculate the new position relative to the parent
-        const newXPos = currentWindow.value.xPos + dx;
-        const newYPos = currentWindow.value.yPos + dy;
+        let newXPos = currentWindow.value.xPos + dx;
+        let newYPos = currentWindow.value.yPos + dy;
 
         // Constrain the new position within the parent boundaries, accounting for status bar height at the bottom
-        const xPos = Math.max(0, Math.min(newXPos, parentRect.width - currentWindow.value.width));
-        const yPos = Math.max(0, Math.min(newYPos, parentRect.height - currentWindow.value.height - heightOffset.value));
+        newXPos = Math.max(0, Math.min(newXPos, parentRect.width - currentWindow.value.width));
+        newYPos = Math.max(0, Math.min(newYPos, parentRect.height - currentWindow.value.height - heightOffset.value));
 
         store.updateWindow(id, {
-            xPos,
-            yPos,
+            xPos: newXPos,
+            yPos: newYPos,
             lastMouseX: event.clientX,
             lastMouseY: event.clientY
         });
@@ -61,9 +68,17 @@ export function useDraggable(id: string) {
         document.addEventListener('mouseup', (event) => stopDrag(event), { once: true });
     }
 
+    // Watch for changes in the root element's parent dimensions
+    watch(() => rootElement.value?.parentElement?.getBoundingClientRect(), (newRect, oldRect) => {
+        if (newRect && oldRect && (newRect.width !== oldRect.width || newRect.height !== oldRect.height)) {
+            console.log('Parent dimensions changed', newRect);
+        }
+    }, { deep: true });
+
     return {
         toggleDrag,
         stopDrag,
         handleDrag,
+        updateRootElement,
     }
 }

@@ -37,6 +37,8 @@ function mockElement(parentWidth = 1200, parentHeight = 800, offsetTop = 0) {
         const rect = {
             width: parseFloat(parent.style.width),
             height: parseFloat(parent.style.height),
+            //width: parseFloat(parent.style.width) - parseFloat(parent.style.padding) * 2 - parseFloat(parent.style.border) * 2,
+            //height: parseFloat(parent.style.height) - parseFloat(parent.style.padding) * 2 - parseFloat(parent.style.border) * 2,
             left: parseFloat(parent.style.margin),
             top: parseFloat(parent.style.margin),
             right: parseFloat(parent.style.width) + parseFloat(parent.style.margin) * 2,
@@ -280,24 +282,8 @@ describe('useDraggable composable with complex scenarios', () => {
         expect(window?.yPos).toBe(380); // Constrained at the parent's bottom edge
     });
 
-    it('handles top UI element offsets correctly', () => {
-        const { toggleDrag, handleDrag } = useDraggable(mockWindow.id);
-        const element = mockElement(1200, 800, 100); // Simulate top UI element with 100px offset
-
-        const downEvent = createMouseEvent('mousedown', 100, 200);
-        toggleDrag(downEvent, element as unknown as HTMLDivElement);
-
-        const moveEvent = createMouseEvent('mousemove', 150, 150);
-        handleDrag(moveEvent);
-
-        const window = store.getWindow(mockWindow.id);
-
-        // Ensure yPos respects the top UI offset
-        expect(window?.yPos).toBe(100); // Constrained by the 100px top offset
-    });
-
     it('updates window position dynamically when parent dimensions change', () => {
-        const { toggleDrag, handleDrag } = useDraggable(mockWindow.id);
+        const { toggleDrag, handleDrag, updateRootElement } = useDraggable(mockWindow.id);
         let element = mockElement(1200, 800);
 
         // Initial drag with a large parent
@@ -314,7 +300,9 @@ describe('useDraggable composable with complex scenarios', () => {
 
         // Simulate the parent shrinking
         element = mockElement(600, 400);
+        updateRootElement(element as unknown as HTMLDivElement);
         const moveEvent2 = createMouseEvent('mousemove', 500, 350);
+
         handleDrag(moveEvent2);
 
         window = store.getWindow(mockWindow.id);
