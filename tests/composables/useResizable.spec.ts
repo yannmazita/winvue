@@ -138,7 +138,7 @@ describe('useResizable composable with complex scenarios', () => {
         expect(window?.height).toBe(450);   // Height increases
     });
 
-    it('resizes southwest (sw) correctly', () => {
+    it('resizes southwest (sw) within max window size', () => {
         const { toggleResize, handleResize } = useResizable(mockWindow.id);
         const element = mockElement(1200, 800);
         const downEvent = createMouseEvent('mousedown', 100, 100);
@@ -155,7 +155,7 @@ describe('useResizable composable with complex scenarios', () => {
         expect(window?.height).toBe(450);   // Height increases
     });
 
-    it('resizes northeast (ne) correctly', () => {
+    it('resizes northeast (ne) within max window size', () => {
         const { toggleResize, handleResize } = useResizable(mockWindow.id);
         const element = mockElement(1200, 800);
         const downEvent = createMouseEvent('mousedown', 100, 100);
@@ -172,7 +172,7 @@ describe('useResizable composable with complex scenarios', () => {
         expect(window?.height).toBe(450);   // Height decreases
     });
 
-    it('resizes northwest (nw) correctly', () => {
+    it('resizes northwest (nw) within max window size', () => {
         const { toggleResize, handleResize } = useResizable(mockWindow.id);
         const element = mockElement(1200, 800);
         const downEvent = createMouseEvent('mousedown', 100, 100);
@@ -189,7 +189,7 @@ describe('useResizable composable with complex scenarios', () => {
         expect(window?.height).toBe(450);   // Height increases
     });
 
-    it('resizes north (n) correctly', () => {
+    it('resizes north (n) within max window size', () => {
         const { toggleResize, handleResize } = useResizable(mockWindow.id);
         const element = mockElement(1200, 800);
         const downEvent = createMouseEvent('mousedown', 100, 100);
@@ -206,7 +206,7 @@ describe('useResizable composable with complex scenarios', () => {
         expect(window?.height).toBe(450);   // Height increases
     });
 
-    it('resizes south (s) correctly', () => {
+    it('resizes south (s) within max window size', () => {
         const { toggleResize, handleResize } = useResizable(mockWindow.id);
         const element = mockElement(1200, 800);
         const downEvent = createMouseEvent('mousedown', 100, 100);
@@ -223,7 +223,7 @@ describe('useResizable composable with complex scenarios', () => {
         expect(window?.height).toBe(450);   // Height increases
     });
 
-    it('resizes east (e) correctly', () => {
+    it('resizes east (e) within max window size', () => {
         const { toggleResize, handleResize } = useResizable(mockWindow.id);
         const element = mockElement(1200, 800);
         const downEvent = createMouseEvent('mousedown', 100, 100);
@@ -240,7 +240,7 @@ describe('useResizable composable with complex scenarios', () => {
         expect(window?.height).toBe(400);   // Height stays the same
     });
 
-    it('resizes west (w) correctly', () => {
+    it('resizes west (w) within max window size', () => {
         const { toggleResize, handleResize } = useResizable(mockWindow.id);
         const element = mockElement(1200, 800);
         const downEvent = createMouseEvent('mousedown', 100, 100);
@@ -257,7 +257,7 @@ describe('useResizable composable with complex scenarios', () => {
         expect(window?.height).toBe(400);   // Height stays the same
     });
 
-    it('stops resizing correctly when mouseup is triggered', () => {
+    it('stops resizing when mouseup is triggered', () => {
         const { toggleResize, stopResize } = useResizable(mockWindow.id);
         const element = mockElement(1200, 800);
         const downEvent = createMouseEvent('mousedown', 100, 100);
