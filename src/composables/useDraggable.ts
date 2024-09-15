@@ -34,8 +34,12 @@ export function useDraggable(id: string) {
         });
     }
 
-    function stopDrag() {
-        store.updateWindow(id, { dragging: false });
+    function stopDrag(event: MouseEvent) {
+        store.updateWindow(id, {
+            dragging: false,
+            lastMouseX: event.clientX,
+            lastMouseY: event.clientY
+        });
         document.removeEventListener('mousemove', handleDrag);
     }
 
@@ -54,7 +58,7 @@ export function useDraggable(id: string) {
             lastMouseY: event.clientY
         });
         document.addEventListener('mousemove', handleDrag);
-        document.addEventListener('mouseup', stopDrag, { once: true });
+        document.addEventListener('mouseup', (event) => stopDrag(event), { once: true });
     }
 
     return {

@@ -128,7 +128,7 @@ describe('useDraggable composable with complex scenarios', () => {
     it('correctly updates dragging and mouse coordinates on drag start', () => {
         const { toggleDrag } = useDraggable('window-1');
         const element = mockElement(800, 600);
-        const downEvent = new MouseEvent('mousedown', { clientX: 150, clientY: 150 });
+        const downEvent = createMouseEvent('mousedown', 150, 150);
 
         toggleDrag(downEvent, element);
 
@@ -141,8 +141,8 @@ describe('useDraggable composable with complex scenarios', () => {
     it('correctly resets dragging on drag stop', () => {
         const { toggleDrag } = useDraggable('window-1');
         const element = mockElement(800, 600);
-        const downEvent = new MouseEvent('mousedown', { clientX: 150, clientY: 150 });
-        const upEvent = new MouseEvent('mouseup', { clientX: 200, clientY: 200 });
+        const downEvent = createMouseEvent('mousedown', 150, 150);
+        const upEvent = createMouseEvent('mouseup', 200, 200);
 
         toggleDrag(downEvent, element);
         document.dispatchEvent(upEvent); // Simulate the mouse up event
@@ -156,8 +156,8 @@ describe('useDraggable composable with complex scenarios', () => {
     it('updates window position and mouse coordinates on mouse move', () => {
         const { toggleDrag, handleDrag } = useDraggable('window-1');
         const element = mockElement();
-        const downEvent = new MouseEvent('mousedown', { clientX: 150, clientY: 150 });
-        const moveEvent = new MouseEvent('mousemove', { clientX: 200, clientY: 250 });
+        const downEvent = createMouseEvent('mousedown', 150, 150);
+        const moveEvent = createMouseEvent('mousemove', 200, 250);
 
         toggleDrag(downEvent, element);
         handleDrag(moveEvent);
