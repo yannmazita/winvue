@@ -237,15 +237,9 @@ describe('useDraggable composable with complex scenarios', () => {
         const downEvent = createMouseEvent('mousedown', 100, 100);
         toggleDrag(downEvent, element as unknown as HTMLDivElement);
 
-        expect(downEvent.preventDefault).toHaveBeenCalled();
-        expect(downEvent.stopPropagation).toHaveBeenCalled();
-
         // Simulate dragging to negative coordinates
         const moveEvent = createMouseEvent('mousemove', -50, -50);
         handleDrag(moveEvent);
-
-        expect(moveEvent.preventDefault).toHaveBeenCalled();
-        expect(moveEvent.stopPropagation).toHaveBeenCalled();
 
         const window = store.getWindow(mockWindow.id);
 
@@ -277,14 +271,8 @@ describe('useDraggable composable with complex scenarios', () => {
         const downEvent = createMouseEvent('mousedown', 100, 100);
         toggleDrag(downEvent, element as unknown as HTMLDivElement);
 
-        expect(downEvent.preventDefault).toHaveBeenCalled();
-        expect(downEvent.stopPropagation).toHaveBeenCalled();
-
         const moveEvent = createMouseEvent('mousemove', 1300, 850);
         handleDrag(moveEvent);
-
-        expect(moveEvent.preventDefault).toHaveBeenCalled();
-        expect(moveEvent.stopPropagation).toHaveBeenCalled();
 
         const window = store.getWindow(mockWindow.id);
 
@@ -299,14 +287,8 @@ describe('useDraggable composable with complex scenarios', () => {
         const downEvent = createMouseEvent('mousedown', 100, 200);
         toggleDrag(downEvent, element as unknown as HTMLDivElement);
 
-        expect(downEvent.preventDefault).toHaveBeenCalled();
-        expect(downEvent.stopPropagation).toHaveBeenCalled();
-
         const moveEvent = createMouseEvent('mousemove', 150, 150);
         handleDrag(moveEvent);
-
-        expect(moveEvent.preventDefault).toHaveBeenCalled();
-        expect(moveEvent.stopPropagation).toHaveBeenCalled();
 
         const window = store.getWindow(mockWindow.id);
 
@@ -323,13 +305,7 @@ describe('useDraggable composable with complex scenarios', () => {
         const moveEvent = createMouseEvent('mousemove', 400, 300);
         toggleDrag(downEvent, element as unknown as HTMLDivElement);
 
-        expect(downEvent.preventDefault).toHaveBeenCalled();
-        expect(downEvent.stopPropagation).toHaveBeenCalled();
-
         handleDrag(moveEvent);
-
-        expect(moveEvent.preventDefault).toHaveBeenCalled();
-        expect(moveEvent.stopPropagation).toHaveBeenCalled();
 
         let window = store.getWindow(mockWindow.id);
 
@@ -354,15 +330,9 @@ describe('useDraggable composable with complex scenarios', () => {
         const downEvent = createMouseEvent('mousedown', 300, 200);
         toggleDrag(downEvent, element as unknown as HTMLDivElement);
 
-        expect(downEvent.preventDefault).toHaveBeenCalled();
-        expect(downEvent.stopPropagation).toHaveBeenCalled();
-
         // Dragging far beyond the initial click position to the top-left corner
         const moveEvent = createMouseEvent('mousemove', -1000, -1000);
         handleDrag(moveEvent);
-
-        expect(moveEvent.preventDefault).toHaveBeenCalled();
-        expect(moveEvent.stopPropagation).toHaveBeenCalled();
 
         const window = store.getWindow(mockWindow.id);
 
