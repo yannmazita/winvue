@@ -10,18 +10,11 @@ export function useResizable(id: string) {
     function adjustSize(dx: number, dy: number, expandRight: boolean, expandDown: boolean) {
         const parent = rootElement?.parentElement;
         const parentRect = parent?.getBoundingClientRect();
-        const rootRect = rootElement?.getBoundingClientRect();
-
-        if (!parentRect || !rootRect) return;
-
-        // Calculate offsets
-        const leftOffset = rootRect.left - parentRect.left;
-        const topOffset = rootRect.top - parentRect.top;
 
         if (currentWindow.value.resizeDirection === 'north') {
             const newHeight = Math.min(Math.max(currentWindow.value.height - dy, currentWindow.value.minimumHeight), currentWindow.value.maximumHeight);
             if (newHeight > currentWindow.value.minimumHeight) {
-                const newY = Math.max(0, currentWindow.value.yPos + dy);
+                const newY = Math.max(parentRect.top, currentWindow.value.yPos + dy);
                 store.updateWindow(id, { yPos: newY, height: newHeight });
             }
         } else {
@@ -31,19 +24,19 @@ export function useResizable(id: string) {
             let newY = currentWindow.value.yPos;
 
             if (!expandRight) {
-                newX = Math.max(0, Math.min(currentWindow.value.xPos + dx, currentWindow.value.xPos + currentWindow.value.width - currentWindow.value.minimumWidth));
+                newX = Math.max(parentRect.left, Math.min(currentWindow.value.xPos + dx, currentWindow.value.xPos + currentWindow.value.width - currentWindow.value.minimumWidth));
             }
 
             if (!expandDown) {
-                newY = Math.max(0, Math.min(currentWindow.value.yPos + dy, currentWindow.value.yPos + currentWindow.value.height - currentWindow.value.minimumHeight));
+                newY = Math.max(parentRect.top, Math.min(currentWindow.value.yPos + dy, currentWindow.value.yPos + currentWindow.value.height - currentWindow.value.minimumHeight));
             }
 
-            // Ensure the window stays within the parent boundaries, accounting for offsets
-            if (newX + newWidth > parentRect.width - leftOffset) {
-                newWidth = parentRect.width - leftOffset - newX;
+            // Ensure the window stays within the parent boundaries
+            if (newX + newWidth > parentRect.right) {
+                newWidth = parentRect.right - newX;
             }
-            if (newY + newHeight > parentRect.height - topOffset) {
-                newHeight = parentRect.height - topOffset - newY;
+            if (newY + newHeight > parentRect.bottom) {
+                newHeight = parentRect.bottom - newY;
             }
 
             store.updateWindow(id, { xPos: newX, yPos: newY, width: newWidth, height: newHeight });
