@@ -285,6 +285,20 @@ describe('useResizable composable with complex scenarios', () => {
         expect(window?.height).toBe(768);   // Height reaches maximum
     });
 
+    it('resizes northeast (ne) beyond max window size', () => {
+        const { toggleResize, handleResize } = useResizable(mockWindow.id);
+        const element = mockElement(1920, 1080);
+        const downEvent = createMouseEvent('mousedown', 100, 100);
+        const moveEvent = createMouseEvent('mousemove', 10000, -10000);
+        toggleResize('ne', downEvent, element as unknown as HTMLDivElement);
+        handleResize(moveEvent);
+        const window = store.getWindow(mockWindow.id);
+        expect(window?.xPos).toBe(100);     // xPos stays the same
+        expect(window?.yPos).toBe(17);      // yPos reaches 17, the effective top boundary considering the parent's padding, margin, and border
+        expect(window?.width).toBe(1024);   // Width reaches maximum
+        expect(window?.height).toBe(768);   // Height reaches maximum
+    });
+
     it('stops resizing when mouseup is triggered', () => {
         const { toggleResize, stopResize } = useResizable(mockWindow.id);
         const element = mockElement(1200, 800);
