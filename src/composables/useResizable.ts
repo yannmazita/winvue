@@ -7,14 +7,10 @@ export function useResizable(id: string) {
     const currentWindow = computed(() => store.windows.get(id)) as Ref<Window>;
     let rootElement: HTMLDivElement | null = null;
 
-    function adjustSize(dx: number, dy: number, expandRight: boolean, expandDown: boolean) {
-        const parent = rootElement?.parentElement;
-        if (!parent) return;
-
+    function getEffectiveBoundaries(parent: HTMLElement) {
         const parentRect = parent.getBoundingClientRect();
         const parentStyle = window.getComputedStyle(parent);
 
-        // Extract padding and border values from the parent style
         const paddingLeft = parseInt(parentStyle.paddingLeft, 10);
         const paddingRight = parseInt(parentStyle.paddingRight, 10);
         const paddingTop = parseInt(parentStyle.paddingTop, 10);
@@ -24,11 +20,19 @@ export function useResizable(id: string) {
         const borderTop = parseInt(parentStyle.borderTopWidth, 10);
         const borderBottom = parseInt(parentStyle.borderBottomWidth, 10);
 
-        // Calculate effective boundaries considering padding and borders
-        const effectiveLeftBoundary = parentRect.left + paddingLeft + borderLeft;
-        const effectiveTopBoundary = parentRect.top + paddingTop + borderTop;
-        const effectiveRightBoundary = parentRect.right - paddingRight - borderRight;
-        const effectiveBottomBoundary = parentRect.bottom - paddingBottom - borderBottom;
+        return {
+            effectiveLeft: parentRect.left + paddingLeft + borderLeft,
+            effectiveTop: parentRect.top + paddingTop + borderTop,
+            effectiveRight: parentRect.right - paddingRight - borderRight,
+            effectiveBottom: parentRect.bottom - paddingBottom - borderBottom
+        };
+    }
+
+    function adjustSize(dx: number, dy: number, expandRight: boolean, expandDown: boolean) {
+        if (!rootElement || !rootElement.parentElement) return;
+
+        const parent = rootElement.parentElement;
+        const { effectiveLeft, effectiveTop, effectiveRight, effectiveBottom } = getEffectiveBoundaries(parent);
 
         let newWidth = currentWindow.value.width + (expandRight ? dx : -dx);
         let newHeight = currentWindow.value.height + (expandDown ? dy : -dy);
@@ -36,26 +40,23 @@ export function useResizable(id: string) {
         let newY = currentWindow.value.yPos;
 
         if (!expandRight) {
-            newX = Math.max(effectiveLeftBoundary, Math.min(currentWindow.value.xPos + dx, currentWindow.value.xPos + currentWindow.value.width - currentWindow.value.minimumWidth));
+            newX = Math.max(effectiveLeft, Math.min(currentWindow.value.xPos + dx, currentWindow.value.xPos + currentWindow.value.width - currentWindow.value.minimumWidth));
         }
 
         if (!expandDown) {
-            newY = Math.max(effectiveTopBoundary, Math.min(currentWindow.value.yPos + dy, currentWindow.value.yPos + currentWindow.value.height - currentWindow.value.minimumHeight));
+            newY = Math.max(effectiveTop, Math.min(currentWindow.value.yPos + dy, currentWindow.value.yPos + currentWindow.value.height - currentWindow.value.minimumHeight));
         }
 
-        // Constrain new dimensions within the parent boundaries
-        if (newX + newWidth > effectiveRightBoundary) {
-            newWidth = effectiveRightBoundary - newX;
+        if (newX + newWidth > effectiveRight) {
+            newWidth = effectiveRight - newX;
         }
-        if (newY + newHeight > effectiveBottomBoundary) {
-            newHeight = effectiveBottomBoundary - newY;
+        if (newY + newHeight > effectiveBottom) {
+            newHeight = effectiveBottom - newY;
         }
 
-        // Constrain the dimensions within the window's max/min sizes
         newWidth = Math.min(Math.max(newWidth, currentWindow.value.minimumWidth), currentWindow.value.maximumWidth);
         newHeight = Math.min(Math.max(newHeight, currentWindow.value.minimumHeight), currentWindow.value.maximumHeight);
 
-        // Update the window position and size
         store.updateWindow(id, {
             xPos: newX,
             yPos: newY,
@@ -101,8 +102,11 @@ export function useResizable(id: string) {
     }
 
     function toggleResize(direction: string, event: MouseEvent, element: HTMLDivElement | null) {
+        if (!element) return; // Avoid setting null elements
+
         rootElement = element;
         store.updateWindow(id, { resizing: true, resizeDirection: direction, lastMouseX: event.clientX, lastMouseY: event.clientY });
+
         document.addEventListener('mousemove', handleResize);
         document.addEventListener('mouseup', stopResize, { once: true });
     }
@@ -116,5 +120,5 @@ export function useResizable(id: string) {
         toggleResize,
         stopResize,
         handleResize,
-    }
+    };
 }
