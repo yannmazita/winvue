@@ -10,51 +10,43 @@ export function useResizable(id: string) {
     function adjustSize(dx: number, dy: number, expandRight: boolean, expandDown: boolean) {
         const parent = rootElement?.parentElement;
         const parentRect = parent?.getBoundingClientRect();
+        const rootRect = rootElement?.getBoundingClientRect();
+
+        if (!parentRect || !rootRect) return;
+
+        // Calculate offsets
+        const leftOffset = rootRect.left - parentRect.left;
+        const topOffset = rootRect.top - parentRect.top;
 
         if (currentWindow.value.resizeDirection === 'north') {
             const newHeight = Math.min(Math.max(currentWindow.value.height - dy, currentWindow.value.minimumHeight), currentWindow.value.maximumHeight);
             if (newHeight > currentWindow.value.minimumHeight) {
-                const newY = currentWindow.value.yPos + dy;
-                if (newY >= parentRect.top && newY + newHeight <= parentRect.bottom) {
-                    store.updateWindow(id, { yPos: newY, height: newHeight });
-                } else {
-                    // Adjust height only to prevent moving with the mouse
-                    store.updateWindow(id, { height: newHeight });
-                }
+                const newY = Math.max(0, currentWindow.value.yPos + dy);
+                store.updateWindow(id, { yPos: newY, height: newHeight });
             }
         } else {
-            const newWidth = Math.min(Math.max(currentWindow.value.width + (expandRight ? dx : -dx), currentWindow.value.minimumWidth), currentWindow.value.maximumWidth);
-            const newHeight = Math.min(Math.max(currentWindow.value.height + (expandDown ? dy : -dy), currentWindow.value.minimumHeight), currentWindow.value.maximumHeight);
+            let newWidth = Math.min(Math.max(currentWindow.value.width + (expandRight ? dx : -dx), currentWindow.value.minimumWidth), currentWindow.value.maximumWidth);
+            let newHeight = Math.min(Math.max(currentWindow.value.height + (expandDown ? dy : -dy), currentWindow.value.minimumHeight), currentWindow.value.maximumHeight);
+            let newX = currentWindow.value.xPos;
+            let newY = currentWindow.value.yPos;
 
-            // Adjust currentWindow.value.xPos position for west resizing
-            if (!expandRight && newWidth > currentWindow.value.minimumWidth) {
-                const newX = currentWindow.value.xPos + dx;
-                if (newX >= parentRect.left && newX + newWidth <= parentRect.right) {
-                    store.updateWindow(id, { xPos: newX, width: newWidth });
-                } else {
-                    // Adjust width only to prevent moving with the mouse
-                    store.updateWindow(id, { width: newWidth });
-                }
-            } else if (expandRight) {
-                if (currentWindow.value.xPos + newWidth <= parentRect.right) {
-                    store.updateWindow(id, { width: newWidth });
-                }
+            if (!expandRight) {
+                newX = Math.max(0, Math.min(currentWindow.value.xPos + dx, currentWindow.value.xPos + currentWindow.value.width - currentWindow.value.minimumWidth));
             }
 
-            // Adjust currentWindow.value.yPos position for north resizing (handled above) and south resizing
-            if (!expandDown && newHeight > currentWindow.value.minimumHeight) {
-                const newY = currentWindow.value.yPos + dy;
-                if (newY >= parentRect.top && newY + newHeight <= parentRect.bottom) {
-                    store.updateWindow(id, { yPos: newY, height: newHeight });
-                } else {
-                    // Adjust height only to prevent moving with the mouse
-                    store.updateWindow(id, { height: newHeight });
-                }
-            } else if (expandDown) {
-                if (currentWindow.value.yPos + newHeight <= parentRect.bottom) {
-                    store.updateWindow(id, { height: newHeight });
-                }
+            if (!expandDown) {
+                newY = Math.max(0, Math.min(currentWindow.value.yPos + dy, currentWindow.value.yPos + currentWindow.value.height - currentWindow.value.minimumHeight));
             }
+
+            // Ensure the window stays within the parent boundaries, accounting for offsets
+            if (newX + newWidth > parentRect.width - leftOffset) {
+                newWidth = parentRect.width - leftOffset - newX;
+            }
+            if (newY + newHeight > parentRect.height - topOffset) {
+                newHeight = parentRect.height - topOffset - newY;
+            }
+
+            store.updateWindow(id, { xPos: newX, yPos: newY, width: newWidth, height: newHeight });
         }
     }
 
