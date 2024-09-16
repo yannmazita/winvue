@@ -279,7 +279,7 @@ describe('useResizable composable with complex scenarios', () => {
         toggleResize('sw', downEvent, element as unknown as HTMLDivElement);
         handleResize(moveEvent);
         const window = store.getWindow(mockWindow.id);
-        expect(window?.xPos).toBe(0);       // xPos reaches minimum
+        expect(window?.xPos).toBe(17);      // xPos reaches 17, the effective left boundary considering the parent's padding, margin, and border
         expect(window?.yPos).toBe(100);     // yPos stays the same
         expect(window?.width).toBe(1024);   // Width reaches maximum
         expect(window?.height).toBe(768);   // Height reaches maximum
