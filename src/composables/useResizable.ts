@@ -9,38 +9,59 @@ export function useResizable(id: string) {
 
     function adjustSize(dx: number, dy: number, expandRight: boolean, expandDown: boolean) {
         const parent = rootElement?.parentElement;
-        const parentRect = parent?.getBoundingClientRect();
+        if (!parent) return;
 
-        if (currentWindow.value.resizeDirection === 'north') {
-            const newHeight = Math.min(Math.max(currentWindow.value.height - dy, currentWindow.value.minimumHeight), currentWindow.value.maximumHeight);
-            if (newHeight > currentWindow.value.minimumHeight) {
-                const newY = Math.max(parentRect.top, currentWindow.value.yPos + dy);
-                store.updateWindow(id, { yPos: newY, height: newHeight });
-            }
-        } else {
-            let newWidth = Math.min(Math.max(currentWindow.value.width + (expandRight ? dx : -dx), currentWindow.value.minimumWidth), currentWindow.value.maximumWidth);
-            let newHeight = Math.min(Math.max(currentWindow.value.height + (expandDown ? dy : -dy), currentWindow.value.minimumHeight), currentWindow.value.maximumHeight);
-            let newX = currentWindow.value.xPos;
-            let newY = currentWindow.value.yPos;
+        const parentRect = parent.getBoundingClientRect();
+        const parentStyle = window.getComputedStyle(parent);
 
-            if (!expandRight) {
-                newX = Math.max(parentRect.left, Math.min(currentWindow.value.xPos + dx, currentWindow.value.xPos + currentWindow.value.width - currentWindow.value.minimumWidth));
-            }
+        // Extract padding and border values from the parent style
+        const paddingLeft = parseInt(parentStyle.paddingLeft, 10);
+        const paddingRight = parseInt(parentStyle.paddingRight, 10);
+        const paddingTop = parseInt(parentStyle.paddingTop, 10);
+        const paddingBottom = parseInt(parentStyle.paddingBottom, 10);
+        const borderLeft = parseInt(parentStyle.borderLeftWidth, 10);
+        const borderRight = parseInt(parentStyle.borderRightWidth, 10);
+        const borderTop = parseInt(parentStyle.borderTopWidth, 10);
+        const borderBottom = parseInt(parentStyle.borderBottomWidth, 10);
 
-            if (!expandDown) {
-                newY = Math.max(parentRect.top, Math.min(currentWindow.value.yPos + dy, currentWindow.value.yPos + currentWindow.value.height - currentWindow.value.minimumHeight));
-            }
+        // Calculate effective boundaries considering padding and borders
+        const effectiveLeftBoundary = parentRect.left + paddingLeft + borderLeft;
+        const effectiveTopBoundary = parentRect.top + paddingTop + borderTop;
+        const effectiveRightBoundary = parentRect.right - paddingRight - borderRight;
+        const effectiveBottomBoundary = parentRect.bottom - paddingBottom - borderBottom;
 
-            // Ensure the window stays within the parent boundaries
-            if (newX + newWidth > parentRect.right) {
-                newWidth = parentRect.right - newX;
-            }
-            if (newY + newHeight > parentRect.bottom) {
-                newHeight = parentRect.bottom - newY;
-            }
+        let newWidth = currentWindow.value.width + (expandRight ? dx : -dx);
+        let newHeight = currentWindow.value.height + (expandDown ? dy : -dy);
+        let newX = currentWindow.value.xPos;
+        let newY = currentWindow.value.yPos;
 
-            store.updateWindow(id, { xPos: newX, yPos: newY, width: newWidth, height: newHeight });
+        if (!expandRight) {
+            newX = Math.max(effectiveLeftBoundary, Math.min(currentWindow.value.xPos + dx, currentWindow.value.xPos + currentWindow.value.width - currentWindow.value.minimumWidth));
         }
+
+        if (!expandDown) {
+            newY = Math.max(effectiveTopBoundary, Math.min(currentWindow.value.yPos + dy, currentWindow.value.yPos + currentWindow.value.height - currentWindow.value.minimumHeight));
+        }
+
+        // Constrain new dimensions within the parent boundaries
+        if (newX + newWidth > effectiveRightBoundary) {
+            newWidth = effectiveRightBoundary - newX;
+        }
+        if (newY + newHeight > effectiveBottomBoundary) {
+            newHeight = effectiveBottomBoundary - newY;
+        }
+
+        // Constrain the dimensions within the window's max/min sizes
+        newWidth = Math.min(Math.max(newWidth, currentWindow.value.minimumWidth), currentWindow.value.maximumWidth);
+        newHeight = Math.min(Math.max(newHeight, currentWindow.value.minimumHeight), currentWindow.value.maximumHeight);
+
+        // Update the window position and size
+        store.updateWindow(id, {
+            xPos: newX,
+            yPos: newY,
+            width: newWidth,
+            height: newHeight
+        });
     }
 
     function handleResize(event: MouseEvent) {
