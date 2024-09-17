@@ -7,56 +7,46 @@ export function useResizable(id: string) {
     const currentWindow = computed(() => store.windows.get(id)) as Ref<Window>;
     let rootElement: HTMLDivElement | null = null;
 
-    function getEffectiveBoundaries(parent: HTMLElement) {
-        const parentRect = parent.getBoundingClientRect();
-        const parentStyle = window.getComputedStyle(parent);
-
-        const paddingLeft = parseInt(parentStyle.paddingLeft, 10);
-        const paddingRight = parseInt(parentStyle.paddingRight, 10);
-        const paddingTop = parseInt(parentStyle.paddingTop, 10);
-        const paddingBottom = parseInt(parentStyle.paddingBottom, 10);
-        const borderLeft = parseInt(parentStyle.borderLeftWidth, 10);
-        const borderRight = parseInt(parentStyle.borderRightWidth, 10);
-        const borderTop = parseInt(parentStyle.borderTopWidth, 10);
-        const borderBottom = parseInt(parentStyle.borderBottomWidth, 10);
-
-        return {
-            effectiveLeft: parentRect.left + paddingLeft + borderLeft,
-            effectiveTop: parentRect.top + paddingTop + borderTop,
-            effectiveRight: parentRect.right - paddingRight - borderRight,
-            effectiveBottom: parentRect.bottom - paddingBottom - borderBottom
-        };
-    }
-
     function adjustSize(dx: number, dy: number, expandRight: boolean, expandDown: boolean) {
         if (!rootElement || !rootElement.parentElement) return;
 
         const parent = rootElement.parentElement;
-        const { effectiveLeft, effectiveTop, effectiveRight, effectiveBottom } = getEffectiveBoundaries(parent);
+        const parentRect = parent.getBoundingClientRect();
 
         let newWidth = currentWindow.value.width + (expandRight ? dx : -dx);
         let newHeight = currentWindow.value.height + (expandDown ? dy : -dy);
         let newX = currentWindow.value.xPos;
         let newY = currentWindow.value.yPos;
 
+        // Handle horizontal resizing (left/right handles)
         if (!expandRight) {
-            newX = Math.max(effectiveLeft, Math.min(currentWindow.value.xPos + dx, currentWindow.value.xPos + currentWindow.value.width - currentWindow.value.minimumWidth));
+            newX = Math.max(0, Math.min(currentWindow.value.xPos + dx, currentWindow.value.xPos + currentWindow.value.width - currentWindow.value.minimumWidth));
         }
 
+        // Handle vertical resizing (top/bottom handles)
         if (!expandDown) {
-            newY = Math.max(effectiveTop, Math.min(currentWindow.value.yPos + dy, currentWindow.value.yPos + currentWindow.value.height - currentWindow.value.minimumHeight));
+            newY = Math.max(0, Math.min(currentWindow.value.yPos + dy, currentWindow.value.yPos + currentWindow.value.height - currentWindow.value.minimumHeight));
+
+            // Adjust height to respect parent's top boundary
+            newHeight = currentWindow.value.yPos - newY + currentWindow.value.height;
+            if (newY + newHeight > parentRect.bottom) {
+                newHeight = parentRect.bottom - newY; // Prevent window from growing from the bottom
+            }
         }
 
-        if (newX + newWidth > effectiveRight) {
-            newWidth = effectiveRight - newX;
+        // Ensure the window stays within the parent's right and bottom boundaries
+        if (newX + newWidth > parentRect.width) {
+            newWidth = parentRect.width - newX;
         }
-        if (newY + newHeight > effectiveBottom) {
-            newHeight = effectiveBottom - newY;
+        if (newY + newHeight > parentRect.height) {
+            newHeight = parentRect.height - newY;
         }
 
+        // Constrain the dimensions within the window's max/min sizes
         newWidth = Math.min(Math.max(newWidth, currentWindow.value.minimumWidth), currentWindow.value.maximumWidth);
         newHeight = Math.min(Math.max(newHeight, currentWindow.value.minimumHeight), currentWindow.value.maximumHeight);
 
+        // Update the window position and size
         store.updateWindow(id, {
             xPos: newX,
             yPos: newY,
@@ -84,16 +74,16 @@ export function useResizable(id: string) {
                     adjustSize(dx, dy, true, false);
                     break;
                 case 'north':
-                    adjustSize(0, dy, false, false);
+                    adjustSize(0, dy, false, false); // Top resizing
                     break;
                 case 'south':
-                    adjustSize(0, dy, false, true);
+                    adjustSize(0, dy, false, true); // Bottom resizing
                     break;
                 case 'east':
-                    adjustSize(dx, 0, true, true);
+                    adjustSize(dx, 0, true, true); // Right resizing
                     break;
                 case 'west':
-                    adjustSize(dx, 0, false, false);
+                    adjustSize(dx, 0, false, false); // Left resizing
                     break;
             }
 
